@@ -9,7 +9,7 @@
 
 \begin{figure}[hbt]
     \centering
-    \includegraphics[width=0.5\textwidth]{image1.jpg}
+    \includegraphics[width=0.7\textwidth]{image1.jpg}
     \caption{心电图示例}
     \label{F.ECG_image}
 \end{figure}
@@ -39,7 +39,7 @@
 
     \begin{figure}[hbt]
         \centering
-        \includegraphics[width=0.5\textwidth]{image2.jpg}
+        \includegraphics[width=0.6\textwidth]{image2.jpg}
         \caption{心电图各波形、波段示意图}
         \label{F.ECG_image2}
     \end{figure}
@@ -77,7 +77,7 @@
 
 第一章为绪论。介绍本文的研究背景以及研究意义，对无线心电同步采集技术的国内外研究现状进行梳理与阐述，最后对本文的研究内容与文章结构进行简要概述。
 
-第二章为心电采集的基础理论部分。介绍心电信号的产生原理以及心电信号中P、Q、R、ST等波形在心电图中的特点，对心电信号的采集、处理等技术进行详细介绍。
+第二章为心电采集的基础理论部分。介绍心电信号的产生原理以及心电信号中P、Q、R、S、T等波形在心电图中的特点，对心电信号的采集、处理等技术进行详细介绍。
 
 第三章为采集系统在硬件部分的设计与实现。主要介绍了心电采集的前端硬件设计思路及原理图设计、心电数据处理和发送的主控部分器件选型思路以及原理图设计、天线选型及射频性能调优过程、整板功耗测量实验数据以及功耗优化策略等硬件相关的技术要点。
 
@@ -87,143 +87,76 @@
 
 第六章总结与展望，总结了本文的主要工作，展望了下一阶段的研究方向。
 
-% \newpage    % 两个章节之间分页，不想分的话可注释掉
+\newpage    % 两个章节之间分页，不想分的话可注释掉
 
-\section{图像布局}
-\label{sec.figure}
+\section{相关背景理论知识}
 
-\emph{学校对图片只有小标题要求，没有进一步的子图要求，我们按科技论文常规排版来}
+\subsection{心电信号产生原理}
 
-\subsection{单图布局}
+心电信号（Electrocardiographic Signal, ECG）是一种反映心脏电活动的生物电信号，其产生源于心肌细胞膜内外离子的流动，主要涉及钠钠离子（Na$^+$）、钾离子（K$^+$）和钙离子（Ca$^{2+}$）的跨膜转运。心脏的正常电活动由心脏传导系统控制，确保心脏各腔室按照一定的顺序进行兴奋和收缩，从而完成泵血功能。
 
-\lipsum
+在正常生理状态下，心脏电活动由窦房结（Sinoatrial Node, SA Node）自动发放的兴奋信号起始，并沿特定的传导路径依次传播至心房和心室，完成整个心动周期。具体而言，窦房结所产生的兴奋首先传导至右心房，引发右心房的去极化与收缩；同时，兴奋通过房间束（Bachmann’s Bundle）传至左心房，导致左心房同步收缩。随后，兴奋沿结间束（Internodal Pathways）传至房室结（Atrioventricular Node）。房室结对兴奋信号产生生理性延迟，以确保心房在心室收缩前充分收缩并完成血液充盈。
 
-\emph{单图布局如图~\ref{F.sztu_single} 所示。}
+兴奋通过房室束（Bundle of His）进入心室传导系统，并沿左、右束支（Left and Right Bundle Branches）迅速传递至浦肯野纤维（Purkinje Fibers），最终激活心室肌，导致心室的去极化和收缩。由于心房与心室之间具有特殊的传导路径，这种传导机制确保兴奋能够在短时间内同步传播至心室各部分，从而实现高效的心脏泵血功能。心脏传导模式如图 \ref{F.ECG_image3} 所示 \cite{现代医学电子仪器原理与设计} 。
 
 \begin{figure}[hbt]
-\centering
-\includegraphics[width=0.5\textwidth]{sztu.png}
-\caption{单图布局示例}
-\label{F.sztu_single}
-\end{figure}
-
-\subsection{横排布局}
-
-\emph{横排布局如图~\ref{F.sztu_row} 所示。}
-
-\begin{figure}[!htb]
     \centering
-    \begin{subfigure}[t]{0.24\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \caption{可以增加描述}
-        \end{minipage}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \caption{}
-        \end{minipage}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \caption{}
-        \end{minipage}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.24\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \caption{}
-        \end{minipage}
-    \end{subfigure}
-    \caption{横排布局示例}
-    \label{F.sztu_row}
+    \includegraphics[width=0.6\textwidth]{image3.png}
+    \caption{心脏传导系统示意图}
+    \label{F.ECG_image3}
 \end{figure}
 
-\lipsum
+在每一个心动周期中，心脏各部位依照一定的顺序和时间规律经历兴奋的产生、传播和恢复，其电活动表现出方向性、时间性及空间上的特定规律。这些生物电信号可通过心脏周围的导电组织和体液传导至体表，使人体不同部位在每个心动周期中均发生相应的电位变化。心电图（Electrocardiogram, ECG）即是在人体表面特定位置放置电极，以记录这些电信号变化的曲线。心电图能够全面反映心脏兴奋的产生、传导及复极化过程，为心脏功能的评估和疾病诊断提供重要依据。
 
-\subsection{竖排布局}
-\emph{竖排布局如图\ref{F.sztu_col}所示。}
+\subsection{心电图波形特征}
 
-\begin{figure}[!htb]
+\begin{figure}[hbt]
     \centering
-    \begin{subfigure}[t]{0.15\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \caption{}
-        \end{minipage}
-    \end{subfigure}\\
-    \begin{subfigure}[t]{0.15\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \caption{}
-        \end{minipage}
-    \end{subfigure}
-    \caption{竖排布局示例}
-    \label{F.sztu_col}
+    \includegraphics[width=0.6\textwidth]{image4.png}
+    \caption{心电图形成示意图}
+    \label{F.ECG_image4}
 \end{figure}
 
-\lipsum
+如图 \ref{F.ECG_image4} 所示 \cite{人体解剖生理学} 心电图（Electrocardiogram, ECG）波形的变化反映了心脏不同阶段的电生理活动。典型的心电图波形包括 P 波、QRS 复合波、T 波和 U 波，如图\ref{F.ECG_image5}所示 \cite{现代医学电子仪器原理与设计} ，各波形的生理意义和正常范围如下：
 
-\subsection{竖排多图横排布局}
+\begin{enumerate}
+    \item \textbf{P波}：P 波由心房去极化产生，其前半部分主要由右心房去极化形成，后半部分主要由左心房去极化形成。正常情况下，P 波的持续时间不超过 0.10 s。
 
-\begin{figure}[!htb]
+    \item \textbf{P-R间期}：P-R 间期是指 P 波起点到 QRS 复合波起点之间的时间间隔，代表从心房开始兴奋到心室兴奋的时间，即兴奋通过心房、房室结和房室束的传导时间。P-R 间期会随着年龄增长而呈现轻微延长的趋势。
+
+    \item \textbf{QRS复合波}：QRS 复合波反映了左、右心室的去极化过程。QRS 波群的持续时间称为 QRS 时限，代表整个心室肌去极化过程所需的时间。正常情况下，QRS 时限不超过 0.10 s。
+    
+    \item \textbf{S-T段}：S-T 段是指 QRS 复合波终点到 T 波起点之间的时间区间，代表心室肌复极化的缓慢阶段。正常情况下，该段接近基线，其与基线的偏离一般不超过 0.05 mm。
+
+    \item \textbf{T波}：T 波代表心室肌的复极化过程。在 R 波占主导的心电图中，T 波的幅值应不低于 R 波幅值的 1/10。
+
+    \item \textbf{U波}：U 波出现在 T 波之后，相对基线来说是凹陷的波形，与心室肌复极化后的电位变化相关。
+\end{enumerate}
+
+\begin{figure}[hbt]
     \centering
-    \begin{subfigure}[t]{0.13\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png} \vspace{-1ex} \vfill
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \end{minipage}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.13\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=1\linewidth]{sztu.png} \vspace{-1ex} \vfill
-        \includegraphics[width=1\linewidth]{sztu.png}
-        \end{minipage}
-        \caption{}
-    \end{subfigure}
-    \caption{竖排多图横排布局}
-    \label{F.sztu_col_row}
+    \includegraphics[width=0.6\textwidth]{image5.png}
+    \caption{心电图各波段示意图}
+    \label{F.ECG_image5}
 \end{figure}
 
-\emph{竖排多图横排布局如图~\ref{F.sztu_col_row} 所示。注意看(a)、(b)编号与图关系。}
+\subsection{心电信号采集原理}
+在人体体表进行心电图（ECG）记录时，需要解决两个核心问题：一是如何确定电极的放置位置，以确保获得稳定且具有临床价值的信号；二是如何设计电极与放大器的连接方式，以保证信号的准确传输和放大。
 
+\subsubsection{心电图导联方式}
 
-\subsection{横排多图竖排布局}
+为了实现心电图波形的标准化，提高数据的可比性和诊断的可靠性，临床实践中对电极的放置部位及其连接方式进行了严格规范。按照心电图学的专业术语，电极在人体体表的具体放置方式以及其与放大器的连接形式统称为心电图导联。
 
-\lipsum
+心电图导联主要分为标准导联和非标准导联两大类。标准导联是指按照国际标准规定的电极放置位置和连接方式进行心电图记录，包括 I、II、III、aVR、aVL、aVF、V1-V6 等 12 个导联。非标准导联则是指除标准导联之外的其他导联方式，如单极胸导联、肢导联等。
 
-\begin{figure}[!htb]
+标准导联中I、II、III导联由Einthoven发现，是最早的心电图导联，其原理是利用三个电极在人体体表上的不同位置记录心电信号，以反映心脏的不同方向的电活动。这三个导联的电极放置位置如图\ref{F.ECG_image6}所示 \cite{现代医学电子仪器原理与设计} 。其中，I导联的电极放置在左右手腕，II导联的电极放置在右手腕和左脚踝，III导联的电极放置在左手腕和左脚踝。
+
+\begin{figure}[hbt]
     \centering
-    \begin{subfigure}[t]{0.3\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=0.45\linewidth]{sztu.png}
-        \includegraphics[width=0.45\linewidth]{sztu.png}
-        \end{minipage}
-        \caption{}
-    \end{subfigure}\\
-    \begin{subfigure}[t]{0.3\linewidth}
-        \begin{minipage}[b]{1\linewidth}
-        \includegraphics[width=0.45\linewidth]{sztu.png}
-        \includegraphics[width=0.45\linewidth]{sztu.png}
-        \end{minipage}
-        \caption{}
-    \end{subfigure}
-    \caption{横排多图竖排布局}
-    \label{F.sztu_row_col}
+    \includegraphics[width=0.6\textwidth]{image6.png}
+    \caption{I、II、III导联电极放置示意图}
+    \label{F.ECG_image6}
 \end{figure}
-
-\emph{横排多图竖排布局如图~\ref{F.sztu_row_col} 所示。注意看(a)、(b)编号与图关系。}
-
-\subsection{本章小结}
-本章示例图片布局。
-
-这里再测试一下不同章节的公式编号
-\begin{equation}
-p_{i} = \frac{e^{-\varepsilon_{i}/kT}}{\sum_{j=1}^{M}e^{-\varepsilon_{j}/kT}}
-\end{equation}
 
 \newpage    % 两个章节之间分页，不想分的话可注释掉
 
