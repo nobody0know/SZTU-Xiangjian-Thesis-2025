@@ -333,14 +333,83 @@
 
 \begin{sidewaysfigure}
     \centering
-    \includegraphics[width=0.8\textwidth]{image11.png}
-    \caption{心电信号采集节点硬件原理图设计}
+    \includegraphics[width=1\textwidth]{image11.png}
+    \caption{心电信号采集节点主控部分硬件原理图设计}
     \label{F.ECG_image11}
 \end{sidewaysfigure}
 
+\newpage    % 两个章节之间分页
 
+\subsubsection{电源部分}
 
-\newpage    % 两个章节之间分页，不想分的话可注释掉
+节点设备在电源部分采用三级供电架构设计，重点解决锂电池安全保护、多电压域转换以及供电模式切换可靠性等技术问题。
+
+在锂电池保护电路设计中，为避免锂电池因过充电、过放电、电流过大导致电池寿命衰减或电池被损坏，使用杰盛微（JSMICRO）DW01锂电保护芯片，配合双NMOS管FS8205A组成标准保护电路。当检测到电池电压超过过充阈值（典型值4.35V±25mV）或低于过放阈值（2.4V±50mV）时，芯片通过内部比较器触发OC/OD引脚电平翻转，切断MOS管通路实现硬件级保护。该电路设置100ms的延时响应时间，可有效过滤瞬态电压波动导致的误触发。
+
+设备采用了TP5400作为锂电池的充放电管理芯片。TP5400 为一款移动电源专用的单节锂离子电池充电器和恒定5V升压控制器，充电部分集高精度电压和充电电流调节器、预充、充电状态指示和充电截止等功能于一体，可以输出最大1A充电电流。而升压电路采用CMOS工艺制造的空载电流极低的VFM开关型DC/DC升压转换器。其具有极低的空载功耗（小于10uA），且升压输出驱动电流能力能达到1A。充电部分为线性降压方式，内置PMOSFET，加上防倒灌电路，并不需要外部检测电阻器和隔离二极管。热反馈可对充电电流进行自动调节，以便在大功率操作或高环境温度条件下对芯片温度加以限制，充满电压固定于4.2V。充电电流可通过一个电阻器进行外部设置。当电池达到4.2V之后，充电电流逐渐下降至设定电流值的五分之一，TP5400将自动终止充电，如图\ref{F.ECG_image15}为TP5400在为1000mAh电池充电的数据图\cite{TP5400}。升压部分同样内置了功率NMOSFET，较小的内阻可以提供驱动能力达到5V/1A。较高的集成度使得TP5400只需少量的外围器件即可正常工作。TP5400还集成了充电温度保护，升压输入电源限流环路，可根据负载情况动态调节电流，并具有快速响应和过流关断功能。 同时TP5400还可接入两颗LED灯，分别用于充电指示和充电完成指示。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image15.png}
+    \caption{TP5400充电循环图（1000mAh电池）}
+    \label{F.ECG_image15}
+\end{figure}
+
+由于TP5400在进行锂电池充电时升压部分无法工作，因此在电池充电时，节点设备需要通过TYPE-C接口进行供电。因此节点设备在电源设计中设计了电源自动切换电路，可在接入TYPE-C充电时自动切换为外部供电模式，而在拔掉TYPE-C充电线时自动切换为锂电池供电模式。通过MOS管Q1和Q2的控制，实现了电源的自动切换。当TYPE-C充电线接入时，VBUS通过肖特基二极管D10输入到VCC5V中，此时VBAT5V为0V，但是D11截止了VBUS倒灌至电池，当TYPE-C拔除后，VBUS电压为0V，VCC5V由VBAT5V供电，实现了电源的自动切换。如图\ref{F.ECG_image19}所示为电源切换电路原理图。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image19.png}
+    \caption{电源切换电路原理图}
+    \label{F.ECG_image19}
+\end{figure}
+
+由于电池通过TP5400升压后输出的电压为5V，以及在充电时由USB进行供电的电压也是5V，因此在节点设备中需要将5V电压转换为3.3V电压，以满足主控芯片、传感器等模拟电路的工作电压要求。将锂电池的5V电压域转换为芯片工作的3.3V电压域的设计中，采用了矽力杰（Silergy）SY8088IAAC 同步降压DC/DC稳压器实现5V→3.3V的转换。SY8088I是一款高效率的1.5MHz同步降压DC/DC稳压器，能够提供高达1A的输出电流。它可以在2.5V至5.5V的宽输入电压范围内工作，并集成了主开关和同步开关，具有非常低的导通电阻（RDS(ON)），以最大限度地减少导通损耗。1.5MHz的开关频率实现了低输出电压纹波，并使外部电感器和电容器的尺寸得以减小。如图\ref{F.ECG_image16}为SY8088I的应用电路图，通过电容电感实现Buck电路降压输出，控制输入SY8088I的反馈引脚的电压，可以实现LX引脚输出电压的调节，从而满足不同电路的工作电压需求。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image16.png}
+    \caption{SY8088I应用电路图}
+    \label{F.ECG_image16}
+\end{figure}
+
+通过查阅SY8088I的datasheet可知，如图\ref{F.ECG_image17}，此芯片通过反馈引脚的输入电压与内置的0.6V参考电压进行比较，来控制LX引脚的电压输出。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image17.png}
+    \caption{SY8088I功能方框图}
+    \label{F.ECG_image17}
+\end{figure}
+
+通过电阻分压电路控制反馈引脚的电压，当所需电压固定的情况下，即可计算电阻分压电路所需阻值，公式如\ref{E.SY8088I}所示为SY8088I的输出3.3V电压的计算公式，此处固定电阻分压电路中$R_H$为$100\,\text{k}\Omega$。
+
+\begin{equation}
+        V_{\text{out}} = \frac{0.6 \times 100\,\text{k}\Omega}{22.1\,\text{k}\Omega} + 0.6\,\text{V} \approx 3.31\,\text{V}
+    \label{E.SY8088I}
+\end{equation}
+
+节点设备在电源部分还设计了基于NMOS（AO3400）和PMOS（AO3401A）的隔离式低功耗电池电压测量电路：ESP32-C3 使能电池电压测量的管脚输出高电平时，PMOS管Q8导通，将NMOS管Q7栅极下拉到地，控制其导通，电池电压经电阻分压电路分压一半后输入电池电压测量ADC管脚。此电路的优势在于其在不测量电池电压即PMOS Q8截止时，电路处于断开状态，不会对电池产生额外的负载，降低整板的空载功耗，提升设备运行时间。如图\ref{F.ECG_image18}为电池电压测量电路原理图。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image18.png}
+    \caption{电池电压测量电路设计图}
+    \label{F.ECG_image18}
+\end{figure}
+
+\begin{sidewaysfigure}
+    \centering
+    \includegraphics[width=1\textwidth]{image20.png}
+    \caption{心电信号采集节点电源部分硬件原理图设计}
+    \label{F.ECG_image20}
+\end{sidewaysfigure}
+
+\newpage    % 两个章节之间分页
+
+\subsubsection{模拟前端部分}
+
+\newpage
 
 \section{参考文献插入示例}
 
