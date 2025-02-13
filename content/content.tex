@@ -256,9 +256,78 @@
 
 主控单元选用乐鑫信息科技（Espressif Systems）推出的ESP32-C3-WROOM-02低功耗无线SoC模组，该芯片集成RISC-V架构32位单核处理器（最高时钟频率160MHz）与2.4GHz无线通信子系统。系统通过其内置的12位高精度SAR型ADC模块（可配置采样率范围4kHz-40kHz）对前端模拟信号处理电路输出的差分心电信号进行数字化转换。模组内建的IEEE 802.11b/g/n Wi-Fi 4协议栈，支持2.4GHz频段的无线通信，可实现与上位机的数据传输。此外，ESP32-C3还集成了丰富的外设接口，包括SPI、I2C、UART、PWM、ADC等，方便与外部传感器、存储器等设备进行通信。
 
-为优化开发流程，设计基于沁恒微电子CH343G高速USB-UART桥接芯片的自动下载电路。该电路通过解析上位机发送的DTR（Data Terminal Ready）和RTS（Request To Send）控制信号，配合RC延时网络（典型值：R=10kΩ,C=100nF）生成符合ESP32-C3启动模式要求的时序组合：当检测到DTR低电平后延迟100ms产生RTS上升沿，自动完成芯片复位与Bootloader模式切换。此设计完全遵循乐鑫官方技术文档《ESP32-C3 Hardware Design Guidelines》\cite{espressif2021esp32c3} 中关于自动下载电路的推荐方案，实现免物理按键的一键烧录功能。
+在本系统中节点设备使用了ESP32C3的高精度ADC功能，对心电信号进行模数转换和电池电压采集，并通过芯片内的WiFi基带将心电数据通过2.4GHz频段的无线WiFi网络将心电数据发送至上位机。同时，通过芯片的RMT(Remote Control Transceiver)功能控制板载WS2812的颜色及闪烁频率，实现设备状态的指示。并预留I2C接口，方便后续扩展其他传感器模块，如与血氧测量芯片通信，实现多参数生理信号采集。
 
-设备采用USB Type-C接口作为标准供电端口，严格遵循USB Power Delivery Rev3.0规范。在接口CC1、CC2引脚与地之间各配置5.1kΩ±1$\%$精度电阻（RC-02封装），形成Rp=5.1kΩ的固定下拉配置，向供电端明确声明本设备作为Sink设备的功率需求等级（默认5V/1.5A）以满足板载锂电池充电需求同时兼顾板上串口调试需求。
+为优化开发流程，设计基于沁恒微电子CH343G高速USB-UART桥接芯片的自动下载电路。该电路通过解析上位机通过串口发送的DTR（Data Terminal Ready）和RTS（Request To Send）控制信号，配合RC延时网络（典型值：R=10kΩ,C=100nF）生成符合ESP32-C3启动模式要求的时序组合,并人为切换从Joint Download Boot模式或SPI Boot模式启动，如表\ref{T.ESP32C3-startmode}所示为ESP32C3各启动模式的配置表。此时通过原理图设计，将GPIO2和GPIO8上拉后只需要控制GPIO9的电平即可实现两种启动模式的切换。在ESP32C3的定义中GPIO2、GPIO8、GPIO9都为Strapping Pin，通过控制这三个管脚的电平即可实现不同启动模式的切换。
+
+\begin{table}[htb]
+    \centering
+    \caption{ESP32-C3启动模式表}
+    \label{T.ESP32C3-startmode}
+    \begin{tabular}{llll}
+    \hline
+    启动模式 & GPIO2 & GPIO8 & GPIO9 \\
+    \hline
+    SPI Boot (default) & 1 & 任意值 & 1 \\
+    \hline
+    Joint Download Boot & 1 & 1 & 0 \\
+    \hline
+\end{tabular}
+\end{table}
+
+如表\ref{T.ESP32C3-autodownload}所示为ESP32C3自动下载电路的真值表。按照乐鑫官方技术文档\cite{espressif2021esp32c3}可知EN的为电平为0即低电平时芯片关闭，EN为1即高电平时芯片启动。通过控制DTR输出1，RTS输出0，此时GPIO9为1，EN为0，将芯片关闭，延时100ms，再将DTR输出为0，此时EN理应为1，GPIO9为1，芯片启动，不延时立刻将RTS输出为1，此时GPIO9为0，在此刻由于芯片EN脚接入了一个RC延时网络，EN并不会立刻上升为高电平，而是会缓慢上升，当EN的电平上升至0.75的VDD时，芯片启动，此时由于GPIO9的电平为0，芯片进入Joint Download Boot模式。延时50ms将GPIO9这个Strapping Pin维持超过芯片的保持时间$t_H$（如图\ref{F.ECG_image13}所示），等芯片读取完Strapping管脚的电平后再将RTS输出为1，此时EN为1，GPIO9为1，当完成下载并复位芯片时，芯片能够正确从SPI Flash中启动用户代码。通过上述真值表的设计，实现了自动下载电路的功能，方便用户快速烧录固件。
+
+\begin{table}[htb]
+    \centering
+    \caption{自动下载电路真值表}
+    \label{T.ESP32C3-autodownload}
+    \begin{tabular}{llllll}
+    \hline
+    DTR & RTS & EN & GPIO9 \\
+    \hline
+    0 & 0 & 1 & 1 \\
+    \hline
+    0 & 1 & 1 & 0 \\
+    \hline
+    1 & 0 & 0 & 1 \\
+    \hline
+    1 & 1 & 1 & 1 \\
+    \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htb]
+    \centering
+    \caption{Strapping 管脚的时序参数说明}
+    \label{T.ESP32C3-strapping}
+    \begin{tabular}{|l| p{8cm} |r|} % 3列：左对齐、左对齐、右对齐
+    \hline
+    \textbf{参数} & \textbf{说明} & \textbf{最小值（ms）} \\
+    \hline
+    $t_{\mathrm{SU}}$ & 建立时间：拉高 CHIP\_EN 激活芯片前，电源轨达到稳定所需时间 & 0 \\
+    \hline
+    $t_{\mathrm{H}}$ & 保持时间：CHIP\_EN 已拉高后，strapping 管脚变为
+    
+    普通 IO 前可读取其值的时间 & 3 \\
+    \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{image13.png}
+    \caption{Strapping 管脚时序参数图}
+    \label{F.ECG_image13}
+\end{figure}
+
+\begin{figure}[hbt]%不知道为什么这个图插入到下一段底下就会报错，只能插入在这里
+    \centering
+    \includegraphics[width=1\textwidth]{image14.png}
+    \caption{供电源到Sink设备的功能模式图}
+    \label{F.ECG_image14}
+\end{figure}
+
+设备采用USB Type-C接口作为标准供电端口，遵循Type-C® Cable and Connector Specification Release 2.4规范。如图\ref{F.ECG_image14} \cite{usbtypec24}所示，在设备端接口CC1、CC2引脚与地之间各配置5.1kΩ±1$\%$精度电阻，形成Rp=5.1kΩ的固定下拉配置，向供电端明确声明本设备作为Sink设备的功率需求等级可向供电设备申请5V/3A的输入到设备中。使得通过C to C线材接入电脑进行调试的同时能够为板载锂电池充电，而避免产生接入后由于Type-C协议不匹配导致无法为设备供电的问题。
 
 本设计通过上述关键技术点的实现，构建了符合医疗电子设备基本要求的硬件平台，其模块化架构便于后续功能扩展与性能优化。如图\ref{F.ECG_image11}所示，为心电信号采集节点硬件原理图设计。
 
