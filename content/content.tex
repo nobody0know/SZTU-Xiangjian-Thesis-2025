@@ -248,7 +248,7 @@
 
 \newpage    % 两个章节之间分页，不想分的话可注释掉
 
-\section{硬件部分设计与实现}
+\section{主要硬件部分设计与实现}
 
 \subsection{心电信号采集节点硬件原理图设计}
 
@@ -348,7 +348,7 @@
 
 设备采用了TP5400作为锂电池的充放电管理芯片。TP5400 为一款移动电源专用的单节锂离子电池充电器和恒定5V升压控制器，充电部分集高精度电压和充电电流调节器、预充、充电状态指示和充电截止等功能于一体，可以输出最大1A充电电流。而升压电路采用CMOS工艺制造的空载电流极低的VFM开关型DC/DC升压转换器。其具有极低的空载功耗（小于10uA），且升压输出驱动电流能力能达到1A。充电部分为线性降压方式，内置PMOSFET，加上防倒灌电路，并不需要外部检测电阻器和隔离二极管。热反馈可对充电电流进行自动调节，以便在大功率操作或高环境温度条件下对芯片温度加以限制，充满电压固定于4.2V。充电电流可通过一个电阻器进行外部设置。当电池达到4.2V之后，充电电流逐渐下降至设定电流值的五分之一，TP5400将自动终止充电，如图\ref{F.ECG_image15}为TP5400在为1000mAh电池充电的数据图\cite{TP5400}。升压部分同样内置了功率NMOSFET，较小的内阻可以提供驱动能力达到5V/1A。较高的集成度使得TP5400只需少量的外围器件即可正常工作。TP5400还集成了充电温度保护，升压输入电源限流环路，可根据负载情况动态调节电流，并具有快速响应和过流关断功能。 同时TP5400还可接入两颗LED灯，分别用于充电指示和充电完成指示。
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image15.png}
     \caption{TP5400充电循环图（1000mAh电池）}
@@ -357,7 +357,7 @@
 
 由于TP5400在进行锂电池充电时升压部分无法工作，因此在电池充电时，节点设备需要通过TYPE-C接口进行供电。因此节点设备在电源设计中设计了电源自动切换电路，可在接入TYPE-C充电时自动切换为外部供电模式，而在拔掉TYPE-C充电线时自动切换为锂电池供电模式。通过MOS管Q1和Q2的控制，实现了电源的自动切换。当TYPE-C充电线接入时，VBUS通过肖特基二极管D10输入到VCC5V中，此时VBAT5V为0V，但是D11截止了VBUS倒灌至电池，当TYPE-C拔除后，VBUS电压为0V，VCC5V由VBAT5V供电，实现了电源的自动切换。如图\ref{F.ECG_image19}所示为电源切换电路原理图。
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image19.png}
     \caption{电源切换电路原理图}
@@ -366,7 +366,7 @@
 
 由于电池通过TP5400升压后输出的电压为5V，以及在充电时由USB进行供电的电压也是5V，因此在节点设备中需要将5V电压转换为3.3V电压，以满足主控芯片、传感器等模拟电路的工作电压要求。将锂电池的5V电压域转换为芯片工作的3.3V电压域的设计中，采用了矽力杰（Silergy）SY8088IAAC 同步降压DC/DC稳压器实现5V→3.3V的转换。SY8088I是一款高效率的1.5MHz同步降压DC/DC稳压器，能够提供高达1A的输出电流。它可以在2.5V至5.5V的宽输入电压范围内工作，并集成了主开关和同步开关，具有非常低的导通电阻（RDS(ON)），以最大限度地减少导通损耗。1.5MHz的开关频率实现了低输出电压纹波，并使外部电感器和电容器的尺寸得以减小。如图\ref{F.ECG_image16}为SY8088I的应用电路图，通过电容电感实现Buck电路降压输出，控制输入SY8088I的反馈引脚的电压，可以实现LX引脚输出电压的调节，从而满足不同电路的工作电压需求。
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image16.png}
     \caption{SY8088I应用电路图}
@@ -375,7 +375,7 @@
 
 通过查阅SY8088I的datasheet可知，如图\ref{F.ECG_image17}，此芯片通过反馈引脚的输入电压与内置的0.6V参考电压进行比较，来控制LX引脚的电压输出。
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image17.png}
     \caption{SY8088I功能方框图}
@@ -391,7 +391,7 @@
 
 节点设备在电源部分还设计了基于NMOS（AO3400）和PMOS（AO3401A）的隔离式低功耗电池电压测量电路：ESP32-C3 使能电池电压测量的管脚输出高电平时，PMOS管Q8导通，将NMOS管Q7栅极下拉到地，控制其导通，电池电压经电阻分压电路分压一半后输入电池电压测量ADC管脚。此电路的优势在于其在不测量电池电压即PMOS Q8截止时，电路处于断开状态，不会对电池产生额外的负载，降低整板的空载功耗，提升设备运行时间。如图\ref{F.ECG_image18}为电池电压测量电路原理图。
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image18.png}
     \caption{电池电压测量电路设计图}
@@ -430,7 +430,7 @@
 \label{E.108Hzfliter}
 \end{equation}
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image22.png}
     \caption{SK型二阶低通滤波器原理图}
@@ -439,14 +439,14 @@
 
 如图\ref{F.ECG_image24} \cite{新概念模拟电路3}为双T陷波器电路的示意图，通过使用LM258DR中的另一个运放构建了单运放双T网络有源陷波器，用于消除市电50Hz工频干扰，如图\ref{F.ECG_image23}所示为有源陷波器的原理图。通过如式子\ref{E.108Hzfliter}的计算可得，当R=6.8kΩ，C=470nF时，实现了约等于50Hz的特征频率，满足陷波需求。通过串联低通滤波器和陷波器，有效抑制了高频和工频噪声，保证了心电信号的准确采集。
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image24.png}
     \caption{双T陷波器电路示意图}
     \label{F.ECG_image24}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[hbt]
     \centering
     \includegraphics[width=0.6\textwidth]{image23.png}
     \caption{双T陷波器原理图}
@@ -465,6 +465,90 @@
 \end{sidewaysfigure}
 
 \newpage
+
+\subsection{心电信号采集节点PCB设计}
+
+在心电信号采集节点的PCB设计中，采用了双层板结构，重点关注模拟电路与数字电路的布局和电源管理，以确保信号的完整性和系统的稳定性。在布局设计中，心电采集的模拟电路部分与主控的数字电路部分被明确分区，分别放置在PCB的不同区域。这种物理上的分离有助于减少数字电路对模拟信号的干扰，特别是高频开关噪声对微弱心电信号的影响。为了实现可靠的接地，两个区域的地线（GND）通过0Ω电阻连接，形成单点接地。这种单点接地方式有效地避免了地环路的产生，减少了地电位差异带来的干扰。为了进一步降低数字电路对模拟电路的干扰，特别是在主控MCU发射无线射频信号时，电源设计上采用了磁珠对两者进行隔离。磁珠在高频下表现出高阻抗特性，能够有效抑制高频噪声的传导。通过在模拟电源和数字电源之间插入磁珠，可以阻止高频噪声从数字电路传导至模拟电路，确保心电信号的采集精度。
+在接地策略上，模拟地（AGND）和数字地（GND）在PCB上被分开布置，各自拥有独立的地平面。防止了数字电路中的高频开关噪声通过地平面耦合至模拟电路。
+
+在PCB设计中，电源和地平面的布局对电路性能有着重要影响。为了减少电源和地线的阻抗，降低噪声干扰，模拟和数字电路的地线以铺铜走地为主，并设计了独立的电源层和接地层。这种设计能够有效减小电源与地线回路的阻抗，减少可能在电源与地线回路中产生的干扰电压。在电源层和接地层之间，通过铺铜走线连接，形成大面积的回流路径，减小回流路径的阻抗，提高电源和地线的稳定性。在模拟电路和数字电路的分区设计中，模拟电路和数字电路的电源和地线分别连接到电源层和接地层，减小了两者之间的干扰，提高了系统的抗干扰能力。如图\ref{F.ECG_image26} \ref{F.ECG_image27}为心电信号采集节点PCB设计图。
+
+\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image26.png}
+    \caption{心电信号采集节点PCB顶层设计图}
+    \label{F.ECG_image26}
+\end{figure}
+
+\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image27.png}
+    \caption{心电信号采集节点PCB底层设计图}
+    \label{F.ECG_image27}
+\end{figure}
+
+为提高芯片散热效果和提升良好接地，TP5400与主控ESP32C3模组均以直连方式连接顶层铺铜GND。如图\ref{F.ECG_image28}所示。
+
+\begin{figure}[!htb]
+    \centering
+    \begin{subfigure}[t]{0.24\linewidth}
+        \begin{minipage}[b]{1\linewidth}
+        \includegraphics[width=1\linewidth]{image28.png}
+        \caption{发散铺铜连接}
+        \end{minipage}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.24\linewidth}
+        \begin{minipage}[b]{1\linewidth}
+        \includegraphics[width=1\linewidth]{image29.png}
+        \caption{直连铺铜连接}
+        \end{minipage}
+    \end{subfigure}
+    \caption{铺铜连接方式示意图}
+    \label{F.ECG_image28}
+\end{figure}
+
+在主控模块的选型过程中，选择了不带板载MIFA（蛇形倒F）天线的型号。如图\ref{F.ECG_image30} MIFA天线是一种常用于小型化设备的天线类型，其结构紧凑，适用于空间受限的应用场景。然而，板载MIFA天线可能会受到设备外壳和PCB设计的影响，导致无线射频信号的性能下降。为提升信号接收效率，设计中通过模块引出的IPEX-1接口（如图\ref{F.ECG_image31} 为IPEX-1接口尺寸图）连接2.4GHz的FPC增益天线。IPEX接口是一种微型射频连接器，具有体积小、连接可靠的特点，广泛应用于需要高频信号传输的设备中。FPC天线具有良好的柔性和弯曲性，能够适应多种安装环境，同时提供较高的增益，提升信号的接收和发射性能。将天线外置的设计策略，有助于减少设备外壳和PCB布局对无线射频信号的屏蔽和干扰。外置天线可以远离主板上的噪声源，降低电磁干扰的影响，从而提高通信的稳定性和可靠性。此外，外置天线的方向性和位置可以根据实际应用需求进行调整，进一步优化信号覆盖范围和传输质量。
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.6\textwidth]{image30.png}
+    \caption{MIFA天线示意图}
+    \label{F.ECG_image30}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.6\textwidth]{image31.png}
+    \caption{IPEX-1接口尺寸图}
+    \label{F.ECG_image31}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{image32.png}
+    \caption{FPC天线实物图\cite{FPC天线}}
+    \label{F.ECG_image32}
+\end{figure}
+
+如图\ref{F.ECG_image33}为节点设备通过嘉立创打样并完成元件焊接与调试的PCBA实物图。
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=1\textwidth]{image33.png}
+    \caption{心电采集节点PCBA实物图}
+    \label{F.ECG_image33}
+\end{figure}
+
+\subsection{心电信号采集基站硬件设计}
+
+由于节点设备开发时间耗时较长，出于在硬件设计部分的时间成本考虑，我在心电采集设备的基站端选择使用嘉立创出品的立创·实战派ESP32-C3开发板作为心电采集设备的基站开发平台。该开发板相较于传统开发板，更趋近于实际产品的外观，体积小巧（69×41×12毫米），不仅内部集成了丰富的传感器，如姿态传感器、地磁传感器、温湿度传感器等，还具备彩屏显示（2寸）和完整的音频输入（麦克风）和输出（喇叭）功能。此外，开发板集成了Wi-Fi和蓝牙功能，预留了两个拓展接口，便于连接更多外部传感器模块和执行器。壳体采用无螺丝设计，便于快速拆装，有助于加速开发进程。综合考虑其丰富的功能集成、紧凑的设计以及易于使用的特性，立创·实战派ESP32-C3开发板成为了我在有限时间内实现心电采集设备基站开发的理想选择。 如图\ref{F.ECG_image34}为立创·实战派ESP32-C3开发板外观图。
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.6\textwidth]{image34.png}
+    \caption{立创·实战派ESP32-C3开发板PCBA图}
+    \label{F.ECG_image34}
+\end{figure}
 
 \section{参考文献插入示例}
 
