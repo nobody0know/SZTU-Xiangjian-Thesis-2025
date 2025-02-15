@@ -407,7 +407,62 @@
 
 \newpage    % 两个章节之间分页
 
-\subsubsection{模拟前端部分}
+\subsubsection{心电采集与放大部分}
+
+节点设备心电采集与放大部分作为决定心电数据采集质量的核心部分，需通过多级精密调理电路实现微弱生理信号的可靠提取。在设计上由运放电源管理、信号采集、前置放大、共模抑制、噪声滤波和电平适配等环节构成完整的信号处理链路。
+
+在电源架构设计上，系统采用LM2776电荷泵实现双极性供电方案，将3.3V直流电源转换为±3.3V对称电源。该设计有效解决了单电源供电时运算放大器工作范围受限的问题，使运算放大器能够在正负电压下正常工作，避免了单电源供电可能导致的信号失真。为保障电源质量，在电荷泵输出端采用电容滤波处理，包含100nF与两个并联的47μF陶瓷电容滤波器，有效抑制电荷泵开关过程引入的低频纹波噪声，以满足生物电信号采集的低噪声需求。
+
+信号输入通道采用标准三电极导联体系，通过RA（右手）、LA（左手）、RL（右脚） 电极构成威尔逊中心电端。前置调理单元选用AD620A仪表放大器构建差分输入结构，其120dB共模抑制比（CMRR）可有效抑制肢体运动等引入的共模干扰。根据AD620A在ECG测量的典型应用中，如图\ref{F.ECG_image21} \cite{AD620A}，首级增益设置为7倍，在保证信号保真度的同时避免放大器饱和。针对体表存在的工频共模干扰，采用右腿驱动负反馈的设计，将AD620A提取的共模电压经LM258DR运放反相放大后通过RL电极反馈至人体，由于反馈信号与原始共模噪声相位相反，当它们在人体中叠加时，能够相互抵消，从而有效降低共模噪声的影响。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{image21.png}
+    \caption{AD620A在ECG测量中的典型应用原理图}
+    \label{F.ECG_image21}
+\end{figure}
+
+
+噪声抑制环节采用复合滤波策略，首先通过LM258DR中的单个运放构建了一个4元件SK型二阶低通滤波器，用于滤除108Hz以上的高频噪声，消除肌电等高频噪声干扰。如图\ref{F.ECG_image22}所示为SK型二阶低通滤波器的原理图，通过配置R50=10kΩ，R51=10kΩ，C75=220nF，C77=100nF，如式子\ref{E.108Hzfliter}所示，计算得知实现了约等于108Hz的特征频率，满足滤波需求。
+
+\begin{equation}
+    f_{0}=\frac{1}{2 \pi \sqrt{C_{75} C_{77} R_{50} R_{51}}}
+\label{E.108Hzfliter}
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image22.png}
+    \caption{SK型二阶低通滤波器原理图}
+    \label{F.ECG_image22}
+\end{figure}
+
+如图\ref{F.ECG_image24} \cite{新概念模拟电路3}为双T陷波器电路的示意图，通过使用LM258DR中的另一个运放构建了单运放双T网络有源陷波器，用于消除市电50Hz工频干扰，如图\ref{F.ECG_image23}所示为有源陷波器的原理图。通过如式子\ref{E.108Hzfliter}的计算可得，当R=6.8kΩ，C=470nF时，实现了约等于50Hz的特征频率，满足陷波需求。通过串联低通滤波器和陷波器，有效抑制了高频和工频噪声，保证了心电信号的准确采集。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image24.png}
+    \caption{双T陷波器电路示意图}
+    \label{F.ECG_image24}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{image23.png}
+    \caption{双T陷波器原理图}
+    \label{F.ECG_image23}
+\end{figure}
+
+基线漂移问题通过RC高通网络（截止频率0.1Hz）解决，选用22μF陶瓷电容与51KΩ电阻构成一阶网络，在保证超低频衰减特性的同时避免极化效应。
+
+信号调理链路末级采用两级反相放大器结构实现信号放大增益，先是通过一级反相放大电路，通过设置电阻Rf=100kΩ，Rin=2kΩ，使得一级放大电路反相放大信号50倍。再将放大后的信号经过50Hz双T陷波电路，滤除前级电路中微弱的工频干扰信号。最后通过反相加法器将信号放大5倍后叠加-1.65V偏置电压，使双极性心电信号适配3.3V单电源ADC的输入范围。输出级配置缓冲放大器隔离前后级阻抗，最终经AIN接口输出峰峰值达2.5V的调理信号。整个电路布局采用单点接地和屏蔽走线技术，关键模拟区域与数字电源域通过磁珠隔离，确保系统在复杂电磁环境下的稳定工作。如图\ref{F.ECG_image25}为心电信号采集与放大部分硬件原理图设计。
+
+\begin{sidewaysfigure}
+    \centering
+    \includegraphics[width=1\textwidth]{image25.png}
+    \caption{心电信号采集与放大部分硬件原理图设计}
+    \label{F.ECG_image25}
+\end{sidewaysfigure}
 
 \newpage
 
