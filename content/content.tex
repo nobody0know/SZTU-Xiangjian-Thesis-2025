@@ -553,6 +553,19 @@ FPC天线则具有良好的力学以及射频性能，能够适应多种安装�
     \label{F.ECG_image33}
 \end{figure}
 
+\subsection{心电信号采集节点功耗实测}
+
+如图\ref{F.ECG_image42}为使用电流分析仪测量节点设备工作时的功耗数据，图中可见设备工作平均工作电流为100mA左右，节点设备使用两节10400锂电池供电，单节容量为350mAh，总电量为700mAh，按平均工作电流估算，节点设备通过电池供电可持续采集6小时。
+
+理论上通过使用DFS动态调频以及AutoLightsleep的休眠策略，可降低节点工作功耗提高工作时间，但是由于ADC采集任务为保障采集速率，大量占用主控运行时间，FreeRTOS空闲任务运行时间较短，导致休眠策略收效甚微。为提高所需测量续航，板载的电池仓可更换14500锂电池进行供电，单节容量为850mAh，可持续采集16小时。
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image42.png}
+    \caption{心电信号采集节点功耗实测曲线}
+    \label{F.ECG_image42}
+\end{figure}
+
 \subsection{心电信号采集基站硬件设计}
 
 由于节点设备开发时间耗时较长，出于在硬件设计部分的时间成本考虑，本研究在心电采集设备的基站端选择使用嘉立创公司出品的立创·实战派ESP32-C3开发板作为心电采集设备的基站开发平台。
@@ -680,10 +693,6 @@ LVGL（Light and Versatile Graphics Library）是一款轻量级、开源的嵌�
     \caption{上位机软件的图形化界面设计图}
     \label{F.ECG_image41}
 \end{figure}
-
-
-\section{实验数据与分析}
-
 
 \section{工作展望}
 
