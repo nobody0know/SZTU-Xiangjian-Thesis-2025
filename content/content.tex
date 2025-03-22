@@ -694,6 +694,48 @@ LVGL（Light and Versatile Graphics Library）是一款轻量级、开源的嵌�
     \label{F.ECG_image41}
 \end{figure}
 
+\section{系统测试与性能评估}
+
+\subsection{心电信号采集与波形验证}
+
+为验证系统采集心电信号的准确性与可靠性，本研究设计了如下实测实验：将1pcs心电采集节点设备PCBA通过标准三电极导联连接人体心电信号开展实测实验。心电节点设备与基站设备组网后通过UDP向上位机程序发送如上文所述的心电信号数据帧，上位机收集实际的心电数据并保存。持续测量4分38秒，收集了276101个数据点。
+
+通过对实测结果进行显示数据分析，经放大滤波后的心电信号幅值在1.5±0.5V内（含PQRS波），信噪比（SNR）达-19.66dB，平均数据时间间隔为 1.01 (理论值=1)，时间间隔标准差为 0.10，心电信号缺失率: 1.00\%，数据分析得知测量时平均心率为87.17 BPM，各参数与设计目标吻合。如图\ref{F.ECG_image43}展示了所采心电信号FFT频谱图以及图\ref{F.ECG_image44}展示了部分心电信号的实测效果（前5000个数据点），以及在添加0.5Hz高通滤波器去除了基线电压的直流分量后还原的心电信号波形。
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image43.png}
+    \caption{所采心电信号FFT频谱图}
+    \label{F.ECG_image43}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{image44.png}
+    \caption{所采心电信号截取图（前5000个数据点）}
+    \label{F.ECG_image44}
+\end{figure}
+
+\subsection{多设备同步采集与时间同步验证}
+
+为验证多设备时间同步机制的有效性，搭建包含15个节点设备的测试环境。持续采集30分钟后，UDP数据包丢失率维持在0.01\%以下，时间戳连续率超过99.0\%。如图\ref{F.ECG_image45}与图\ref{F.ECG_image46}为实验测量环境实拍图，实测结果表明系统能够实现多设备的时间同步采集，确保了数据的准确性和一致性。
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image45.jpg}
+    \caption{多设备时间同步采集实测环境实拍图1}
+    \label{F.ECG_image45}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image46.jpg}
+    \caption{多设备时间同步采集实测环境实拍图2}
+    \label{F.ECG_image46}
+\end{figure}
+
+
+
 \section{工作展望}
 
 本研究通过设计与实现无线多设备心电信号同步采集系统，解决了传统心电采集设备在多设备同步采集中的时间同步问题，提升了系统的稳定性和数据的准确性。然而，随着技术的不断发展和应用需求的变化，未来的研究工作仍有许多值得探索和改进的方向：
