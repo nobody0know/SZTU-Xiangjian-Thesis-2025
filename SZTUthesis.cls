@@ -116,7 +116,7 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
 % 磅和 LaTeX的 pt- points (大约 1/72 inch) 是一致的。
 \renewcommand*{\baselinestretch}{1.5}   % 几倍行间距
 \setlength{\baselineskip}{16pt}         % 基准行间距
-\setlength{\parskip}{12pt}              % 基准段间距（word行距与字体有关，这里用12pt近似word五号宋体行间距）
+\setlength{\parskip}{0pt}              % 基准段间距（word行距与字体有关，这里用12pt近似word五号宋体行间距）
 
 
 % 设置字体 %
@@ -227,7 +227,7 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
         \begin{minipage}{\textwidth}
             \centering
             \bfseries
-            {\zihao{3} \heiti 题目：} 
+            % {\zihao{3} \heiti 题目：} 
             \begin{varwidth}[t]{0.85\textwidth}
                 \zihao{2} \kaishu \uline{\@titlecn} 
             \end{varwidth}
@@ -323,14 +323,14 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
               {\titlerule*[0.5pc]{.}\contentspage}
 
 \titlecontents{subsection}
-    [2.5em]
+    [3.5em]
     {\zihao{4} \songti} % note that 3.8 = 1.5 + 2.3
     {\contentslabel{2.2em}}
     {\hspace*{-3em}}
     {\titlerule*[0.5pc]{.}\contentspage}
 
 \titlecontents{subsubsection}
-    [4em]
+    [6.5em]
     {\zihao{4} \songti} % note that 3.8 = 1.5 + 2.3
     {\contentslabel{3.0em}}
     {\hspace*{-5em}}
@@ -570,7 +570,7 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
 % 【】标题五号楷体顶格加粗，内容小五号楷体顶格。单倍行距、段前段后 0.5 行、两端对齐排版。
 \newcommand{\setreference}
 {
-    \setlength{\bibsep}{2ex} % 参考文献条目间距
+    \setlength{\bibsep}{1ex} % 参考文献条目间距
     % 临时修改section标题样式
     \renewcommand{\refname}{参考文献}
     \titleformat{\section}{\centering \bfseries \zihao{-2} \heiti}{\thesection}{1em}{}
@@ -579,6 +579,7 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
     \phantomsection % 使得hyperref目录能够跳转到正确的位置
     \addcontentsline{toc}{section}{参考文献} % 由于参考文献不是section，这句把参考文献加入目录
 	\zihao{5} \kaishu
+    \nopagebreak
 	\bibliographystyle{gbt7714-numerical}
     \bibliography{thesis-references}
     \newpage
