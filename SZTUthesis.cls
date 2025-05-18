@@ -49,6 +49,16 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
 \RequirePackage{titlesec}
 % 超链接 hyperref 的设置
 \RequirePackage{hyperref}
+% 设置超链接的颜色
+\hypersetup{
+    colorlinks=true, % false: boxed links; true: colored links
+    linkcolor=black,  % color of internal links
+    citecolor=black,  % color of links to bibliography
+    filecolor=black,  % color of file links
+    urlcolor=black,   % color of external links
+    pdfborder={0 0 0},
+    pdfstartview=FitH,
+}
 % 插入图片
 \RequirePackage{graphicx}
 % 表格
@@ -293,6 +303,7 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
 % “目录”两字居中（三号黑体），下空两行为章、节、小节及其开始页码（靠右顶格）。章、节、小节分别以阶梯式排列：1（第1章）、1.1、1.1.1依次标出。章、节、小节的题名与页码之间用“．．．．．．”连接。除“目录”两字外，其余字体均为小四号宋体。
 
 \setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2} % 目录深度设置为2，仅显示到二级标题
 % 定义作为标题的格式
 % \titleformat{command}[shape]%定义标题类型和标题样式
 %               {format}%定义标题格式
